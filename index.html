@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jenson 3D bar graph revised</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+<body>
+    <a-scene>
+        <a-entity position="0 0 0">
+            <a-camera></a-camera>
+        </a-entity>
+
+        <!-- A plane to act as a background -->
+        <a-plane color="#ccc" width="6" height="4" rotation="-90 0 0" position="0 -2 -3"></a-plane>
+
+        <!-- Container for the bars -->
+        <a-entity id="bars" position="-2.5 -1 -3"></a-entity>
+    </a-scene>
+
+    <script>
+        // Sample JSON dataset representing food consumption
+        const foodData = [
+            { food: "Apple", consumption: [10, 20, 30, 40, 50, 60, 70] },
+            { food: "Banana", consumption: [20, 30, 40, 50, 60, 70, 80] },
+            { food: "Orange", consumption: [30, 40, 50, 60, 70, 80, 90] },
+            { food: "Grapes", consumption: [40, 50, 60, 70, 80, 90, 100] }
+        ];
+
+        // Convert JSON data to a matrix
+        const matrix = foodData.map(item => item.consumption);
+
+        // Set up A-Frame scene
+        const scene = d3.select('a-scene');
+        const barContainer = d3.select('#bars');
+
+        // Create bars
+        const barWidth = 0.2;
+        const barDistance = 0.1;
+        const barColors = ['#FF5733', '#33FF57', '#5733FF', '#FF5733', '#33FF57', '#5733FF', '#FF5733'];
+
+        barContainer.selectAll('a-box')
+            .data(matrix.flat()) // Flatten the matrix
+            .enter()
+            .append('a-box')
+            .attr('position', (d, i) => `${i % 7 * (barWidth + barDistance)} 0 ${(Math.floor(i / 7)) * (barWidth + barDistance)}`)
+            .attr('width', barWidth)
+            .attr('height', d => d * 0.1) // Reduced the height of bars
+            .attr('depth', barWidth)
+            .attr('color', (_, i) => barColors[i % barColors.length]);
+
+        // Add labels to the bars
+        const labels = foodData.map(item => item.food);
+
+        barContainer.selectAll('.label')
+            .data(labels)
+            .enter()
+            .append('a-text')
+            .attr('position', (d, i) => `${i % 7 * (barWidth + barDistance)} -0.3 ${(Math.floor(i / 7)) * (barWidth + barDistance)}`)
+            .attr('value', d => d)
+            .attr('align', 'center')
+            .attr('color', 'black')
+            .attr('scale', '0.2 0.2 0.2');
+
+    </script>
+</body>
+</html>
